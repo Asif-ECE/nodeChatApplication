@@ -1,5 +1,4 @@
-<%- include('./partials/header.ejs'); %> 
-
+<%- include('./partials/header.ejs'); %>
     <div class="manageUser-container">
       <div id="title">
         <h2>Manage Users</h2>
@@ -19,14 +18,14 @@
             </tr>
           </thead>
           <tbody id="users-table">
-            <% users.forEach(function(user){ %>
+            <% users.forEach(function(user) { %>
               <tr id="<%= user._id %>">
                 <td class="name">
                   <% if (user.avatar) { %>
                     <img src="./uploads/avatars/<%= user.avatar %>" />
                   <% } else { %>
                     <img src="./images/nophoto.png" />
-                  <% } %>
+                    <% } %>
                   <span><%= user.name %></span>
                 </td>
                 <td><%= user.email %></td>
@@ -39,33 +38,35 @@
         </table>
       </div>
     </div>
-
     <%- include('./partials/add-user-modal.ejs'); %>
+
     <script>
-      const deleteToast = Toastify({
-        text: "User deleted!",
-        duration: 3000
-      });
-
-      const deleteErrorToast = Toastify({
-        text: "Could not delete user",
-        duration: 3000
-      });
-
-      async function deleteUser(userId){
-        let response = await fetch(`/users/${userId}`, {
-          method: "DELETE",
+        // toasts
+        const deleteToast = Toastify({
+            text: "User was deleted successfully!",
+            duration: 3000,
         });
 
-        let result = await response.json();
+        const deleteErrorToast = Toastify({
+            text: "Could not delete the user!",
+            duration: 3000,
+        });
+        
+        // delete user function
+        async function deleteUser(userId) {
+            let response = await fetch(`/users/${userId}`, {
+                method: "DELETE",
+            });
 
-        if(result.errors) {
-          deleteErrorToast.showToast();
-        } else {
-          deleteToast.showToast();
-          document.getElementById(userId).remove();
+            let result = await response.json();
+
+            if (result.errors) {
+                deleteErrorToast.showToast();
+            } else {
+                deleteToast.showToast();
+                document.getElementById(userId).remove();
+            }
         }
-      }
     </script>
   </body>
 </html>

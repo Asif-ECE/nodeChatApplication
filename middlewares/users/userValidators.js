@@ -1,13 +1,13 @@
-//external imports
+// external imports
 const { check, validationResult } = require("express-validator");
 const createError = require("http-errors");
 const path = require("path");
 const { unlink } = require("fs");
 
-//model import
+// internal imports
 const User = require("../../models/People");
 
-//add user validator
+// add user
 const addUserValidators = [
   check("name")
     .isLength({ min: 1 })
@@ -23,20 +23,22 @@ const addUserValidators = [
       try {
         const user = await User.findOne({ email: value });
         if (user) {
-          throw createError("Email already in use!");
+          throw createError("Email already is use!");
         }
       } catch (err) {
         throw createError(err.message);
       }
     }),
   check("mobile")
-    .isMobilePhone("bn-BD", { strictMode: true })
-    .withMessage("Must be a valid bd mobile number!")
+    .isMobilePhone("bn-BD", {
+      strictMode: true,
+    })
+    .withMessage("Mobile number must be a valid Bangladeshi mobile number")
     .custom(async (value) => {
       try {
         const user = await User.findOne({ mobile: value });
         if (user) {
-          throw createError("Mobile already in use!");
+          throw createError("Mobile already is use!");
         }
       } catch (err) {
         throw createError(err.message);
@@ -45,17 +47,17 @@ const addUserValidators = [
   check("password")
     .isStrongPassword()
     .withMessage(
-      "Password must have 8 char & 1 uCase & 1 lCase & 1 number and 1 symbol!"
+      "Password must be at least 8 characters long & should contain at least 1 lowercase, 1 uppercase, 1 number & 1 symbol"
     ),
 ];
 
-const addUserValidatorHandler = function (req, res, next) {
+const addUserValidationHandler = function (req, res, next) {
   const errors = validationResult(req);
   const mappedErrors = errors.mapped();
   if (Object.keys(mappedErrors).length === 0) {
     next();
   } else {
-    //remove uploaded files
+    // remove uploaded files
     if (req.files.length > 0) {
       const { filename } = req.files[0];
       unlink(
@@ -66,8 +68,8 @@ const addUserValidatorHandler = function (req, res, next) {
       );
     }
 
-    //response errors
-    res.status(500).join({
+    // response the errors
+    res.status(500).json({
       errors: mappedErrors,
     });
   }
@@ -75,5 +77,5 @@ const addUserValidatorHandler = function (req, res, next) {
 
 module.exports = {
   addUserValidators,
-  addUserValidatorHandler,
+  addUserValidationHandler,
 };
